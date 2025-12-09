@@ -1,9 +1,19 @@
-# Multi-stage build for optimized production image
-FROM node:20-alpine AS base
+# Multi-stage build for optimized production image (Debian-based for glibc)
+FROM node:20-bookworm-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat python3 make g++
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    build-essential \
+    pkg-config \
+    libvips \
+    libvips-dev \
+    fftw3-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -18,6 +28,18 @@ RUN pnpm install --prod=false
 
 # Rebuild the source code only when needed
 FROM base AS builder
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    build-essential \
+    pkg-config \
+    libvips \
+    libvips-dev \
+    fftw3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Install pnpm (match lockfile generated with pnpm v10)
@@ -39,22 +61,21 @@ RUN pnpm build
 
 # Production image, copy all the files and run next
 FROM base AS runner
-WORKDIR /app
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libvips \
+    fftw3 \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install runtime dependencies for sharp and image processing
-RUN apk add --no-cache \
-    vips-dev \
-    fftw-dev \
-    build-base \
-    python3 \
-    libc6-compat
+WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create a non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
