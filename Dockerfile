@@ -12,7 +12,7 @@ RUN apt-get update && \
     pkg-config \
     libvips \
     libvips-dev \
-    fftw3-dev && \
+    libfftw3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -37,7 +37,7 @@ RUN apt-get update && \
     pkg-config \
     libvips \
     libvips-dev \
-    fftw3-dev && \
+    libfftw3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -64,7 +64,7 @@ FROM base AS runner
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libvips \
-    fftw3 \
+    libfftw3-double3 \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
