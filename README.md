@@ -61,19 +61,6 @@ pnpm dev
 
 Visit **http://localhost:3000/tools** or **http://localhost:3000/generator**
 
-### Docker (Recommended for Production)
-
-```bash
-# Using Docker Compose
-docker-compose up -d
-
-# Or build and run manually
-docker build -t img-compression .
-docker run -d -p 3000:3000 img-compression
-```
-
-Visit **http://localhost:3000** • See [DOCKER.md](DOCKER.md) for details
-
 ### Testing
 
 ```bash
@@ -395,46 +382,6 @@ server {
 }
 ```
 
-### Docker Deployment
-
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Install dependencies for Sharp and ONNX runtime
-RUN apk add --no-cache \
-    libc6-compat \
-    python3 \
-    make \
-    g++
-
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install
-
-COPY . .
-RUN pnpm build
-
-EXPOSE 3000
-CMD ["pnpm", "start"]
-```
-
-**docker-compose.yml:**
-```yaml
-version: '3.8'
-services:
-  image-tools:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_AUTO_DOWNLOAD_DEFAULT=true
-      - NODE_ENV=production
-    volumes:
-      - ./public:/app/public
-    restart: unless-stopped
-```
-
 ## 🔒 Security
 
 ### File Upload Security
@@ -476,7 +423,7 @@ if (file.size > MAX_FILE_SIZE) {
 | **Notifications** | Sonner (toast notifications) |
 | **Testing** | Vitest, @testing-library/react |
 | **Build Tools** | pnpm, ESBuild, Turbopack |
-| **Deployment** | Vercel, Node.js, Docker |
+| **Deployment** | Railway, Node.js|
 
 ## 🧪 Testing
 
@@ -521,21 +468,6 @@ pnpm test:ui
 ✅ **CI/CD Ready** - Automated testing support  
 ✅ **Well-Documented** - See [TESTING.md](TESTING.md) and [TEST-SUMMARY.md](TEST-SUMMARY.md)
 
-## 🐳 Docker & Deployment
-
-### Docker
-
-```bash
-# Quick start with Docker Compose
-docker-compose up -d
-
-# Manual build and run
-docker build -t img-compression .
-docker run -d -p 3000:3000 img-compression
-
-# Health check
-curl http://localhost:3000/api/health
-```
 
 **Features:**
 - Multi-stage optimized build
@@ -544,21 +476,17 @@ curl http://localhost:3000/api/health
 - Nginx reverse proxy included
 - Resource limits configured
 
-📖 **Full Guide:** [DOCKER.md](DOCKER.md)
-
 ### CI/CD Pipeline
 
 Automated workflows with GitHub Actions:
 
 - ✅ **Continuous Integration** - Automated testing on push/PR
 - ✅ **Multi-platform Testing** - Ubuntu, Windows, macOS
-- ✅ **Docker Publishing** - Auto-build and push images
 - ✅ **Vercel Deployment** - Auto-deploy to production
 - ✅ **Coverage Reports** - Codecov integration
 
 **Workflows:**
 - `ci.yml` - Main CI/CD pipeline (test, build, deploy)
-- `docker-publish.yml` - Docker image publishing
 - `test.yml` - Cross-platform test suite
 
 📖 **Full Guide:** [.github/CI-CD.md](.github/CI-CD.md) | [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md)
