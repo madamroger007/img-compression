@@ -55,6 +55,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_AUTO_DOWNLOAD_DEFAULT=true
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 # Build the application
 RUN pnpm build
@@ -78,7 +79,6 @@ RUN groupadd --system --gid 1001 nodejs && \
     useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copy necessary files from builder
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
