@@ -13,8 +13,8 @@ RUN corepack enable && corepack prepare pnpm@10.17.0 --activate
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile --prod=false
+# Install dependencies (allow lockfile update if needed for version compatibility)
+RUN pnpm install --prod=false
 
 # Rebuild the source code only when needed
 FROM base AS builder
