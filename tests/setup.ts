@@ -1,6 +1,7 @@
 // Test setup file
 import { beforeAll, afterAll } from 'vitest';
-import { File, FormData, Blob } from 'undici';
+import { File, FormData } from 'undici';
+import { Blob } from 'buffer';
 
 // Setup before all tests
 beforeAll(() => {
@@ -8,9 +9,13 @@ beforeAll(() => {
     process.env.NEXT_PUBLIC_AUTO_DOWNLOAD_DEFAULT = 'true';
 
     // Ensure web-like globals exist for tests running in Node
-    if (!globalThis.File) globalThis.File = File;
-    if (!globalThis.FormData) globalThis.FormData = FormData;
-    if (!globalThis.Blob) globalThis.Blob = Blob;
+    const fileCtor = File as unknown as typeof globalThis.File;
+    const formDataCtor = FormData as unknown as typeof globalThis.FormData;
+    const blobCtor = Blob as unknown as typeof globalThis.Blob;
+
+    if (!globalThis.File) globalThis.File = fileCtor;
+    if (!globalThis.FormData) globalThis.FormData = formDataCtor;
+    if (!globalThis.Blob) globalThis.Blob = blobCtor;
     globalThis.fetch = globalThis.fetch || fetch;
 });
 
