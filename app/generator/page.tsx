@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useMemo, useState } from 'react';
 import { FileListBar } from '@/components/FileListBar';
 import { Footer } from '@/components/Footer';
@@ -418,11 +419,16 @@ export default function GeneratorPage() {
                           </button>
                         </div>
                         {item.mime.startsWith('image/') && item.base64 ? (
-                          <img
-                            src={`data:${item.mime};base64,${item.base64}`}
-                            alt={item.name}
-                            className="w-full h-64 object-contain bg-slate-50"
-                          />
+                          <div className="relative w-full h-64 bg-slate-50">
+                            <Image
+                              src={`data:${item.mime};base64,${item.base64}`}
+                              alt={item.name}
+                              fill
+                              className="object-contain"
+                              sizes="(min-width: 768px) 50vw, 100vw"
+                              unoptimized
+                            />
+                          </div>
                         ) : (
                           <div className="h-64 flex items-center justify-center text-slate-500 text-sm bg-slate-50">
                             {item.mime === 'application/zip'

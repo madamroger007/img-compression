@@ -1,8 +1,0 @@
-packages:
-  - '.'
-
-ignoredBuiltDependencies:
-  - sharp
-
-onlyBuiltDependencies:
-  - onnxruntime-node

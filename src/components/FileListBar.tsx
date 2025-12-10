@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useRef, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';

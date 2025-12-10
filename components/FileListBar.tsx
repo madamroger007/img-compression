@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useRef, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -50,11 +51,14 @@ export function FileListBar({ files, onDelete, onAddMore }: FileListBarProps) {
                 onMouseEnter={() => setHoveredId(file.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <div className="w-28 h-28 rounded-xl overflow-hidden shadow-lg border-2 border-slate-200 hover:border-purple-400 transition-all duration-300">
-                  <img
+                <div className="relative w-28 h-28 rounded-xl overflow-hidden shadow-lg border-2 border-slate-200 hover:border-purple-400 transition-all duration-300">
+                  <Image
                     src={file.preview}
                     alt={file.file.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="112px"
+                    unoptimized
                   />
                 </div>
 

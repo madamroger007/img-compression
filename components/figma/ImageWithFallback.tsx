@@ -1,3 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
+'use client'
+
 import React, { useState } from 'react'
 
 const ERROR_IMG_SRC =

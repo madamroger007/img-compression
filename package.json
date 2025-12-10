@@ -81,6 +81,12 @@
     "pnpm": {
         "overrides": {
             "sharp": "0.33.5"
-        }
+        },
+        "ignoredBuiltDependencies": [
+            "@swc/core",
+            "esbuild",
+            "sharp",
+            "unrs-resolver"
+        ]
     }
 }
