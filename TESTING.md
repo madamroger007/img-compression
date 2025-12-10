@@ -11,12 +11,11 @@ tests/
 │   ├── convert-to-png.test.ts   # PNG conversion endpoint
 │   └── duplicate.test.ts        # Image duplication endpoint
 ├── lib/                          # Library function tests
-│   ├── formData.test.ts         # FormData parsing utilities
-│   └── removeBackground.test.ts # Background removal logic
+│   └── formData.test.ts         # FormData parsing utilities
 ├── imageProcessor.test.ts        # Core image processing
 └── setup.ts                      # Test environment setup
 
-Total Test Files: 6
+Total Test Files: 5
 ```
 
 ## Running Tests
@@ -100,23 +99,7 @@ pnpm vitest run tests/api/
 
 **Test Count:** ~18 tests
 
-#### `removeBackground.test.ts` - Background Removal Logic
-- ✅ Successful background removal
-- ✅ Empty buffer error handling
-- ✅ Null/undefined input validation
-- ✅ Different image sizes (50x50 to 500x300)
-- ✅ Format configuration (PNG with alpha)
-- ✅ Post-processing verification
-- ✅ Concurrent request handling
-- ✅ Concurrency limit respect
-- ✅ Base64 encoding compatibility
-- ✅ Dimension preservation
-- ✅ JPEG to PNG conversion
-- ✅ BGError class behavior
-
-**Test Count:** ~15 tests
-
-### Core Image Processing Tests (1 file, ~35 test cases)
+### Core Image Processing Tests (~35 test cases)
 
 #### `imageProcessor.test.ts` - Main Processing Functions
 - ✅ Quality preset resolution (high, medium, low)
@@ -274,7 +257,6 @@ Add to `.vscode/launch.json`:
 |--------|----------------|
 | lib/imageProcessor.ts | 90%+ |
 | lib/formData.ts | 95%+ |
-| lib/removeBackground.ts | 85%+ |
 | app/api/** | 80%+ |
 | Overall | 85%+ |
 
@@ -295,9 +277,8 @@ Add to `.vscode/launch.json`:
 
 ## Known Limitations
 
-1. **Background Removal Tests**: Mock the actual AI model to avoid downloading 80MB model in tests
-2. **API Tests**: Use in-memory FormData instead of actual HTTP requests
-3. **Binary Data**: Limited validation of actual image quality, focus on structure
+1. **API Tests**: Use in-memory FormData instead of actual HTTP requests
+2. **Binary Data**: Limited validation of actual image quality, focus on structure
 
 ## Future Improvements
 
@@ -305,7 +286,6 @@ Add to `.vscode/launch.json`:
 - [ ] Add visual regression tests for image output
 - [ ] Implement snapshot testing for API responses
 - [ ] Add performance benchmarks
-- [ ] Test background removal with real model (optional)
 - [ ] Add E2E tests for full user workflows
 
 ## Support
@@ -320,5 +300,6 @@ For issues with tests:
 
 **Last Updated**: 2025
 **Test Framework**: Vitest 2.1.8
-**Total Tests**: ~95 test cases
+**Total Tests**: ~70 test cases
+**Average Runtime**: <10 seconds
 **Average Runtime**: <10 seconds

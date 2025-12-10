@@ -13,8 +13,6 @@
         "test:ui": "vitest --ui"
     },
     "dependencies": {
-        "@imgly/background-removal": "^1.7.0",
-        "@imgly/background-removal-node": "^1.4.5",
         "@radix-ui/react-accordion": "^1.2.3",
         "@radix-ui/react-alert-dialog": "^1.1.6",
         "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -58,7 +56,6 @@
         "react-hook-form": "^7.55.0",
         "react-resizable-panels": "^2.1.7",
         "recharts": "^2.15.2",
-        "rembg-node": "^2.0.2",
         "sharp": "^0.33.5",
         "sonner": "^2.0.3",
         "tailwind-merge": "*",

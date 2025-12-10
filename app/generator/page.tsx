@@ -43,8 +43,6 @@ export default function GeneratorPage() {
         return 'Compress with smart resizing and high perceived quality.';
       case 'convert-to-png':
         return 'Convert any image to PNG while keeping transparency.';
-      case 'remove-background':
-        return 'Remove background using local AI processing (no external APIs).';
       case 'duplicate':
         return 'Duplicate the uploaded image multiple times or as a zip.';
       default:
@@ -124,8 +122,6 @@ export default function GeneratorPage() {
         return '/api/images/compress';
       case 'convert-to-png':
         return '/api/images/convert-to-png';
-      case 'remove-background':
-        return '/api/images/remove-background';
       case 'duplicate':
         return `/api/images/duplicate${zipOutput ? '?zip=true' : ''}`;
     }
@@ -151,75 +147,17 @@ export default function GeneratorPage() {
         body: form,
       });
 
-      // Handle binary PNG response for background removal
-      if (operation === 'remove-background') {
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({
-            error: `Request failed with status ${response.status}`,
-          }));
-          throw new Error(errorData.error || 'Background removal failed.');
-        }
+      // Handle JSON response for all operations
+      const data: ApiResponse = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Request failed.');
+      }
 
-        // Get filename from header or generate one
-        const contentDisposition = response.headers.get('Content-Disposition');
-        const filenameMatch = contentDisposition?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        const filename = filenameMatch
-          ? decodeURIComponent(filenameMatch[1].replace(/['"]/g, ''))
-          : `${primaryFile.file.name.replace(/\.[^/.]+$/, '')}-no-bg.png`;
+      setResults(data.results || []);
+      setState('completed');
 
-        // Convert blob to base64 for preview
-        const blob = await response.blob();
-        // Use FileReader to convert blob to base64 (handles large files without stack overflow)
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const dataUrl = reader.result as string;
-            // Remove the data URL prefix (e.g., "data:image/png;base64,")
-            const base64Data = dataUrl.split(',')[1];
-            resolve(base64Data);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-
-        const result: ImageResult = {
-          name: filename,
-          mime: 'image/png',
-          size: blob.size,
-          base64,
-        };
-
-        setResults([result]);
-        setState('completed');
-
-        if (autoDownload) {
-          // Trigger download from blob
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          link.style.display = 'none';
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          URL.revokeObjectURL(url);
-          toast.success('Download started', {
-            description: 'Background removed image downloaded.',
-          });
-        }
-      } else {
-        // Handle JSON response for other operations
-        const data: ApiResponse = await response.json();
-        if (!response.ok || data.error) {
-          throw new Error(data.error || 'Request failed.');
-        }
-
-        setResults(data.results || []);
-        setState('completed');
-
-        if (autoDownload && data.results) {
-          triggerDownloads(data.results);
-        }
+      if (autoDownload && data.results) {
+        triggerDownloads(data.results);
       }
     } catch (err) {
       const message =
@@ -320,7 +258,6 @@ export default function GeneratorPage() {
                       >
                         <option value="compress">Compress</option>
                         <option value="convert-to-png">Convert to PNG</option>
-                        <option value="remove-background">Remove background</option>
                         <option value="duplicate">Duplicate</option>
                       </select>
                     </div>
@@ -363,17 +300,6 @@ export default function GeneratorPage() {
                           />
                         </div>
                       </>
-                    )}
-
-                    {operation === 'remove-background' && (
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700">
-                          Local Processing
-                        </label>
-                        <p className="text-xs text-slate-500">
-                          generate with AI U2Net ONNX model
-                        </p>
-                      </div>
                     )}
 
                     {operation === 'duplicate' && (

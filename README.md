@@ -83,7 +83,6 @@ img-compression/
 │   │   └── images/
 │   │       ├── compress/         # Image compression endpoint
 │   │       ├── convert-to-png/   # Format conversion endpoint
-│   │       ├── remove-background/# AI background removal endpoint
 │   │       └── duplicate/        # Image duplication endpoint
 │   ├── generator/                # Main image processing page
 │   │   └── page.tsx             # Client-side React component
@@ -100,7 +99,6 @@ img-compression/
 │   └── ui/                      # shadcn/ui components
 ├── lib/                         # Core Processing Logic
 │   ├── imageProcessor.ts        # Sharp-based image operations
-│   ├── removeBackground.ts      # AI background removal engine
 │   ├── formData.ts             # FormData parsing utilities
 │   └── utils.ts                # Helper functions
 ├── types/                       # TypeScript Definitions
@@ -152,64 +150,60 @@ Input Image → Preprocessing → AI Segmentation → Post-processing → Output
 
 ### Processing Pipeline
 
-#### 1. **Preprocessing Stage** (`lib/removeBackground.ts`)
-```typescript
+The application uses a modular pipeline approach for different image operations:
+
+#### Image Compression
+```
 - Image validation and metadata extraction
-- Contrast normalization (enhance edge detection)
-- High-quality resampling (Lanczos3 kernel)
-- Format conversion to optimal input for AI model
+- Quality preset handling (high/medium/low)
+- Dimensions constraint enforcement
+- Format optimization (JPEG, WebP, PNG)
+- Smart resampling with Lanczos3 kernel
 ```
 
-#### 2. **AI Segmentation** ([@imgly/background-removal-node](https://github.com/imgly/background-removal-js))
-```typescript
-- Model: "medium" (80MB) - Best balance of quality & speed
-- ONNX Runtime: Hardware-accelerated inference
-- Output: PNG with alpha channel (transparency mask)
-- Automatic model download & caching on first use
+#### Format Conversion
+```
+- Parse source image format
+- Convert to target format (PNG)
+- Preserve transparency and quality
+- Optimize output file size
 ```
 
-#### 3. **Post-processing Stage** (Sharp)
-```typescript
-- Extract alpha channel from AI output
-- Apply linear transformation: amplify contrast, remove weak pixels
-  → linear(1.2, -25): Multiply alpha by 1.2, subtract 25
-- Threshold filtering: Remove semi-transparent artifacts (< 15 opacity)
-- Edge smoothing: Gaussian blur (0.5px) for natural transitions
-- Rebuild RGBA: Combine clean RGB + refined alpha channel
-- PNG optimization: Quality 100, compression level 9
+#### Image Duplication
+```
+- Create multiple copies of source image
+- Support for ZIP archive packing
+- Batch processing of copies
 ```
 
 ### Performance Optimizations
 
-- **Concurrency Control**: Max 2 simultaneous removals to prevent memory overflow
-- **Progressive Processing**: Streams and buffers for memory efficiency
-- **Error Handling**: Custom BGError class with detailed error messages
-- **Logging**: Detailed processing metrics (size, dimensions, timing)
+- **Stream Processing**: Handle large files efficiently
+- **Memory Management**: Streaming buffers for multi-file operations
+- **Error Handling**: Detailed error messages and validation
+- **Logging**: Processing metrics and performance tracking
 
 ### Technical Stack
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| AI Model | ONNX (U²-Net architecture) | Semantic segmentation |
-| Runtime | @imgly/background-removal-node | Model inference engine |
-| Image Processing | Sharp (libvips) | Pre/post-processing, optimization |
+| Image Processing | Sharp (libvips) | Compression, conversion, optimization |
 | API Layer | Next.js API Routes | HTTP endpoints, file handling |
 | Client | React 18 + TypeScript | User interface, state management |
+| Format Support | Sharp + Node.js | Multiple format handling |
 
 ### Output Quality
 
-- **Format**: PNG with 32-bit RGBA (full color + transparency)
-- **Quality**: Maximum (100%) - no compression artifacts
-- **Edges**: Smooth anti-aliased transitions
-- **Transparency**: Clean alpha channel, no semi-transparent artifacts
-- **File Size**: Optimized with compression level 9 (no quality loss)
+- **Formats**: JPEG, PNG, WebP
+- **Quality**: Configurable presets (high/medium/low)
+- **Dimensions**: Customizable max width/height
+- **File Size**: Optimized with Smart compression
+- **Metadata**: Preserved when applicable
 
 ### Best Results Achieved With:
-- Clear subject-background distinction
-- Good lighting and contrast
-- Subjects: People, products, objects, animals
-- Complex edges: Hair, fur, transparent objects handled well
-- Backgrounds: Any color or pattern (AI-based segmentation)
+- Standard image formats (JPEG, PNG, WebP)
+- Images under 50MB
+- Standard dimensions (up to 8000x8000px)
 
 ## 🔌 API Endpoints
 
@@ -251,20 +245,6 @@ FormData {
 ```
 
 **Response:** Same as compress endpoint
-
-### POST `/api/images/remove-background`
-AI-powered background removal with transparent output.
-
-**Request:**
-```typescript
-FormData {
-  file: File (required) - PNG, JPG, JPEG, or WebP
-}
-```
-
-**Response:** Binary PNG file (image/png)
-- Headers: `Content-Disposition: attachment; filename=removed-bg.png`
-- Direct file download, not JSON
 
 ### POST `/api/images/duplicate`
 Create multiple copies of an image.
