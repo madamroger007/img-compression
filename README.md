@@ -1,20 +1,8 @@
 # Image Tools - Professional Image Processing Web App
 
-A modern, full-stack Next.js application for professional image processing with **AI-powered background removal**, compression, format conversion, and more. Built with Next.js 14 App Router, TypeScript, and Sharp for high-performance server-side image processing.
+A modern, full-stack Next.js application for professional image processing with compression, format conversion, and duplication. Built with Next.js 14 App Router, TypeScript, and Sharp for high-performance server-side image processing.
 
 ## 🎯 Key Features
-
-### 🤖 AI Background Removal
-- **Local AI Processing**: Powered by [@imgly/background-removal-node](https://github.com/imgly/background-removal-js) with ONNX runtime
-- **No External APIs**: All processing happens on your server - privacy-friendly and cost-effective
-- **Advanced Post-Processing**: Multi-stage refinement pipeline for professional results:
-  - Image normalization and contrast enhancement
-  - AI-powered foreground/background segmentation
-  - Alpha channel threshold filtering to remove artifacts
-  - Edge smoothing and blur for natural transitions
-  - Maximum quality PNG output with transparency
-- **Smart Edge Detection**: Handles complex subjects like hair, fur, and fine details
-- **Optimized Performance**: Concurrent processing limits to prevent server overload
 
 ### 🗜️ Smart Image Compression
 - **Quality Presets**: High (90%), Medium (80%), Low (65%)
@@ -44,8 +32,6 @@ A modern, full-stack Next.js application for professional image processing with 
 - **Responsive Design**: Works on desktop and mobile
 - **Toast Notifications**: Clear feedback with Sonner
 - **Progress Tracking**: Visual indicators for all operations
-
-## 🚀 Quick Start
 
 ## 🚀 Quick Start
 
@@ -120,15 +106,15 @@ Copy `env.example` to `.env.local`:
 # Auto-download feature (true/false)
 NEXT_PUBLIC_AUTO_DOWNLOAD_DEFAULT="true"
 
-# Optional: Custom model cache path for @imgly/background-removal
-# PUBLIC_PATH="/custom/model/path"
+# Google Analytics ID (optional)
+NEXT_PUBLIC_GA_ID="G-XXXXXXXXXX"
 ```
 
 ### App Configuration
 
 **next.config.mjs**:
-- External packages: `sharp`, `onnxruntime-node`, `@imgly/background-removal-node`
-- Webpack externals configured for native bindings
+- Standalone output for production deployment
+- React strict mode enabled
 - Optimized for Node.js runtime
 
 **tailwind.config.ts**:
@@ -136,19 +122,7 @@ NEXT_PUBLIC_AUTO_DOWNLOAD_DEFAULT="true"
 - shadcn/ui integration
 - Responsive breakpoints
 
-## 🤖 AI Background Removal - Technical Details
-
-### Architecture
-
-**100% Local Processing** - No external APIs, complete privacy, no recurring costs.
-
-The background removal system uses a multi-stage pipeline for professional results:
-
-```
-Input Image → Preprocessing → AI Segmentation → Post-processing → Output PNG
-```
-
-### Processing Pipeline
+## 🔧 Processing Pipeline
 
 The application uses a modular pipeline approach for different image operations:
 
@@ -190,7 +164,7 @@ The application uses a modular pipeline approach for different image operations:
 | Image Processing | Sharp (libvips) | Compression, conversion, optimization |
 | API Layer | Next.js API Routes | HTTP endpoints, file handling |
 | Client | React 18 + TypeScript | User interface, state management |
-| Format Support | Sharp + Node.js | Multiple format handling |
+| Styling | Tailwind CSS + shadcn/ui | Modern UI components |
 
 ### Output Quality
 
@@ -300,13 +274,11 @@ export const dynamic = 'force-dynamic';
 ```
 
 **Considerations:**
-- **Function Timeout**: Background removal can take 2-5 seconds
-  - Free tier: 10s timeout (usually sufficient)
-  - Pro tier: 60s timeout (recommended for heavy use)
+- **Function Timeout**: Image processing typically completes in 1-3 seconds
+  - Free tier: 10s timeout (sufficient)
+  - Pro tier: 60s timeout (for very large images)
 - **Memory**: 1024MB default (sufficient for most images)
-- **Cold Starts**: First request downloads AI model (~80MB)
-  - Model cached for subsequent requests
-  - Consider Vercel Pro for faster cold starts
+- **Cold Starts**: Minimal impact with Sharp library
 
 **Environment Variables** (Vercel Dashboard):
 ```
@@ -325,8 +297,8 @@ NEXT_PUBLIC_AUTO_DOWNLOAD_DEFAULT=true
 
 **Requirements:**
 - Node.js 18+ (LTS recommended)
-- 2GB+ RAM for AI processing
-- 500MB disk space (model cache)
+- 1GB+ RAM for image processing
+- 100MB disk space
 
 **Deployment:**
 ```bash
@@ -356,8 +328,8 @@ server {
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
         
-        # Increase timeout for background removal
-        proxy_read_timeout 60s;
+        # Timeout for image processing
+        proxy_read_timeout 30s;
     }
 }
 ```
@@ -396,14 +368,13 @@ if (file.size > MAX_FILE_SIZE) {
 | Category | Technologies |
 |----------|-------------|
 | **Frontend** | Next.js 14, React 18, TypeScript, TailwindCSS |
-| **UI Components** | shadcn/ui, Radix UI, Lucide Icons |
-| **Image Processing** | Sharp (libvips), @imgly/background-removal-node |
-| **AI/ML** | ONNX Runtime, U²-Net model |
+| **UI Components** | shadcn/ui, Radix UI, Lucide Icons, Framer Motion |
+| **Image Processing** | Sharp (libvips) |
 | **State Management** | React Hooks (useState, useMemo) |
 | **Notifications** | Sonner (toast notifications) |
 | **Testing** | Vitest, @testing-library/react |
 | **Build Tools** | pnpm, ESBuild, Turbopack |
-| **Deployment** | Railway, Node.js|
+| **Deployment** | Vercel, Railway, Node.js |
 
 ## 🧪 Testing
 
@@ -429,32 +400,23 @@ pnpm test:ui
 
 | Test File | Tests | Coverage |
 |-----------|-------|----------|
-| **API Endpoints** | 24 | All 4 endpoints |
+| **API Endpoints** | 24 | All 3 endpoints |
 | compress.test.ts | 7 | Quality presets, dimensions, formats |
 | convert-to-png.test.ts | 7 | Format conversion, transparency |
 | duplicate.test.ts | 10 | Duplicates, ZIP, limits |
-| **Library Functions** | 30 | All utilities |
+| **Library Functions** | 16 | All utilities |
 | formData.test.ts | 16 | Parsing, validation |
-| removeBackground.test.ts | 14 | AI processing, errors |
 | **Core Processing** | 27 | Main logic |
 | imageProcessor.test.ts | 27 | Compression, conversion, duplication |
-| **Total** | **81** | **100% pass rate** |
+| **Total** | **67** | **100% pass rate** |
 
 ### Test Features
 
 ✅ **Comprehensive** - All server API logic tested  
-✅ **Fast** - Completes in ~1.3 seconds  
-✅ **Reliable** - 100% pass rate (81/81 tests)  
+✅ **Fast** - Completes in ~1 second  
+✅ **Reliable** - 100% pass rate (67/67 tests)  
 ✅ **CI/CD Ready** - Automated testing support  
 ✅ **Well-Documented** - See [TESTING.md](TESTING.md) and [TEST-SUMMARY.md](TEST-SUMMARY.md)
-
-
-**Features:**
-- Multi-stage optimized build
-- Multi-platform support (amd64, arm64)
-- Health checks built-in
-- Nginx reverse proxy included
-- Resource limits configured
 
 ### CI/CD Pipeline
 
@@ -476,20 +438,20 @@ Automated workflows with GitHub Actions:
 **Core:**
 - `next@14.2.15` - React framework
 - `react@18.3.1` - UI library
-- `sharp@0.32.6` - High-performance image processing
-- `@imgly/background-removal-node@1.4.5` - AI background removal
-- `onnxruntime-node@1.17.3` - ONNX model inference
+- `sharp@0.33.5` - High-performance image processing
+- `jszip@3.10.1` - ZIP file generation
 
 **UI:**
-- `tailwindcss@3.4.17` - Utility-first CSS
+- `tailwindcss@3.4.13` - Utility-first CSS
 - `@radix-ui/*` - Accessible UI primitives
-- `lucide-react@0.469.0` - Icon library
-- `sonner@2.0.7` - Toast notifications
+- `lucide-react@0.487.0` - Icon library
+- `sonner@2.0.3` - Toast notifications
+- `motion` - Framer Motion for animations
 
 **Dev:**
-- `typescript@5.7.2` - Type safety
-- `vitest@2.1.8` - Testing framework
-- `@testing-library/react@16.1.0` - Component testing
+- `typescript@5.6.3` - Type safety
+- `vitest@2.1.3` - Testing framework
+- `@vitest/coverage-v8@2.1.9` - Coverage reporting
 
 ## 📄 License
 
@@ -505,5 +467,5 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 
 ---
 
-**Built with ❤️ using Next.js, Sharp, and AI-powered image processing**
+**Built with ❤️ using Next.js, Sharp, and modern web technologies**
   
