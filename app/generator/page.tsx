@@ -32,7 +32,6 @@ export default function GeneratorPage() {
   const [error, setError] = useState<string | null>(null);
   const [autoDownload, setAutoDownload] = useState(AUTO_DOWNLOAD_DEFAULT);
   const [showScan, setShowScan] = useState(false);
-  const [refinement, setRefinement] = useState(true);
 
   const hasFiles = files.length > 0;
   const primaryFile = files[0];
@@ -116,7 +115,7 @@ export default function GeneratorPage() {
     return form;
   };
 
-  const endpointForOperation = () => {
+  const endpointForOperation = (): string => {
     switch (operation) {
       case 'compress':
         return '/api/images/compress';
@@ -124,6 +123,8 @@ export default function GeneratorPage() {
         return '/api/images/convert-to-png';
       case 'duplicate':
         return `/api/images/duplicate${zipOutput ? '?zip=true' : ''}`;
+      default:
+        throw new Error(`Unknown operation: ${operation}`);
     }
   };
 
